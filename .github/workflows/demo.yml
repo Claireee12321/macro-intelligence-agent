@@ -1,0 +1,69 @@
+# Public demo site — builds the website from the clearly labeled, fully synthetic SAMPLE day
+# (`macro-intel sample`) and publishes it with GitHub Pages. No network data is collected and no
+# third-party data is published. Runs only in public repositories.
+
+name: Demo site (sample data)
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 13 * * 1"  # weekly rebuild so the sample day's dates stay current
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Generate the synthetic sample day
+        run: |
+          pip install -q -e .
+          macro-intel sample
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build site
+        working-directory: web
+        env:
+          MACRO_SITE_DIR: ../data-sample/site
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

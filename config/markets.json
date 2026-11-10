@@ -1,0 +1,58 @@
+{
+  "_comment": "Market dashboard. source: treasury (official EOD par curve), treasury_real (official EOD real curve), nyfed (official reference rates), fred (FRED series), yahoo (delayed quotes, labeled as such), derived (formula over other ids), ecb (ECB daily reference rate via Frankfurter, fallback for FX). scale multiplies source values (e.g. OAS % → bp). Yields/spreads change in bp; prices in %.",
+  "markets": [
+    {"id": "ust_3m",  "label": "3M T-bill",       "group": "treasury", "source": "treasury", "symbol": "3 Mo",  "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "ust_2y",  "label": "2Y Treasury",     "group": "treasury", "source": "treasury", "symbol": "2 Yr",  "units": "%", "decimals": 2, "change_units": "bp", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "ust_5y",  "label": "5Y Treasury",     "group": "treasury", "source": "treasury", "symbol": "5 Yr",  "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "ust_10y", "label": "10Y Treasury",    "group": "treasury", "source": "treasury", "symbol": "10 Yr", "units": "%", "decimals": 2, "change_units": "bp", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "ust_30y", "label": "30Y Treasury",    "group": "treasury", "source": "treasury", "symbol": "30 Yr", "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+
+    {"id": "live_2y_fut", "label": "2Y T-note futures (price)", "group": "treasury_live", "source": "yahoo", "symbol": "ZT=F", "units": "price", "decimals": 3, "change_units": "%", "reaction": true, "stale_after_hours": 80, "note": "CBOT 2-Year T-Note futures price; delayed. Price up = 2Y yields down. No reliable free intraday 2Y yield is available."},
+    {"id": "live_5y",  "label": "5Y yield (intraday)",  "group": "treasury_live", "source": "yahoo", "symbol": "^FVX",  "units": "%", "decimals": 3, "change_units": "bp", "stale_after_hours": 80, "note": "Cboe 5-Year yield index; delayed."},
+    {"id": "live_10y", "label": "10Y yield (intraday)", "group": "treasury_live", "source": "yahoo", "symbol": "^TNX",  "units": "%", "decimals": 3, "change_units": "bp", "reaction": true, "stale_after_hours": 80, "note": "Cboe 10-Year yield index; delayed."},
+    {"id": "live_30y", "label": "30Y yield (intraday)", "group": "treasury_live", "source": "yahoo", "symbol": "^TYX",  "units": "%", "decimals": 3, "change_units": "bp", "stale_after_hours": 80, "note": "Cboe 30-Year yield index; delayed."},
+
+    {"id": "curve_2s10s", "label": "2s10s curve", "group": "curve", "source": "derived", "formula": "ust_10y - ust_2y", "units": "bp", "decimals": 0, "change_units": "bp", "overview": true, "stale_after_hours": 80},
+    {"id": "curve_5s30s", "label": "5s30s curve", "group": "curve", "source": "derived", "formula": "ust_30y - ust_5y", "units": "bp", "decimals": 0, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "curve_3m10y", "label": "3m10y curve", "group": "curve", "source": "derived", "formula": "ust_10y - ust_3m", "units": "bp", "decimals": 0, "change_units": "bp", "stale_after_hours": 80},
+
+    {"id": "tips_5y",  "label": "5Y real yield (TIPS)",  "group": "real", "source": "treasury_real", "symbol": "5 YR",  "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "tips_10y", "label": "10Y real yield (TIPS)", "group": "real", "source": "treasury_real", "symbol": "10 YR", "units": "%", "decimals": 2, "change_units": "bp", "overview": true, "stale_after_hours": 80},
+    {"id": "be_5y",    "label": "5Y breakeven",          "group": "real", "source": "derived", "formula": "ust_5y - tips_5y",  "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80, "note": "Nominal minus real par yield (Treasury curves)."},
+    {"id": "be_10y",   "label": "10Y breakeven",         "group": "real", "source": "derived", "formula": "ust_10y - tips_10y", "units": "%", "decimals": 2, "change_units": "bp", "overview": true, "stale_after_hours": 80, "note": "Nominal minus real par yield (Treasury curves)."},
+    {"id": "fwd_5y5y", "label": "5y5y inflation fwd",    "group": "real", "source": "fred", "symbol": "T5YIFR", "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 100},
+
+    {"id": "fed_upper", "label": "Fed funds target (upper)", "group": "policy", "source": "fred", "symbol": "DFEDTARU", "units": "%", "decimals": 2, "change_units": "bp", "overview": true, "stale_after_hours": 100},
+    {"id": "effr",      "label": "EFFR",                     "group": "policy", "source": "nyfed", "symbol": "unsecured/effr", "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "sofr",      "label": "SOFR",                     "group": "policy", "source": "nyfed", "symbol": "secured/sofr",   "units": "%", "decimals": 2, "change_units": "bp", "stale_after_hours": 80},
+    {"id": "spread_2y_effr", "label": "2Y minus EFFR",       "group": "policy", "source": "derived", "formula": "ust_2y - effr", "units": "bp", "decimals": 0, "change_units": "bp", "stale_after_hours": 80, "note": "Rough gauge of priced policy path: negative = market expects cuts over ~2 years."},
+
+    {"id": "dxy",    "label": "DXY (dollar index)", "group": "fx", "source": "yahoo", "symbol": "DX-Y.NYB", "units": "index", "decimals": 2, "change_units": "%", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "eurusd", "label": "EUR/USD", "group": "fx", "source": "yahoo", "symbol": "EURUSD=X", "units": "fx", "decimals": 4, "change_units": "%", "fallback": "ecb_eurusd", "reaction": true, "stale_after_hours": 80},
+    {"id": "usdjpy", "label": "USD/JPY", "group": "fx", "source": "yahoo", "symbol": "JPY=X",    "units": "fx", "decimals": 2, "change_units": "%", "fallback": "ecb_usdjpy", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "gbpusd", "label": "GBP/USD", "group": "fx", "source": "yahoo", "symbol": "GBPUSD=X", "units": "fx", "decimals": 4, "change_units": "%", "fallback": "ecb_gbpusd", "stale_after_hours": 80},
+    {"id": "usdcnh", "label": "USD/CNH", "group": "fx", "source": "yahoo", "symbol": "CNH=X",    "units": "fx", "decimals": 4, "change_units": "%", "stale_after_hours": 80},
+    {"id": "audusd", "label": "AUD/USD", "group": "fx", "source": "yahoo", "symbol": "AUDUSD=X", "units": "fx", "decimals": 4, "change_units": "%", "stale_after_hours": 80},
+    {"id": "usdcad", "label": "USD/CAD", "group": "fx", "source": "yahoo", "symbol": "CAD=X",    "units": "fx", "decimals": 4, "change_units": "%", "stale_after_hours": 80},
+    {"id": "ecb_eurusd", "label": "EUR/USD (ECB fix)", "group": "fx_fallback", "source": "ecb", "symbol": "EUR", "units": "fx", "decimals": 4, "change_units": "%", "stale_after_hours": 100},
+    {"id": "ecb_usdjpy", "label": "USD/JPY (ECB fix)", "group": "fx_fallback", "source": "ecb", "symbol": "JPY", "units": "fx", "decimals": 2, "change_units": "%", "stale_after_hours": 100},
+    {"id": "ecb_gbpusd", "label": "GBP/USD (ECB fix)", "group": "fx_fallback", "source": "ecb", "symbol": "GBP", "units": "fx", "decimals": 4, "change_units": "%", "stale_after_hours": 100},
+
+    {"id": "hy_oas", "label": "US high-yield OAS",      "group": "credit", "source": "fred", "symbol": "BAMLH0A0HYM2", "scale": 100, "units": "bp", "decimals": 0, "change_units": "bp", "overview": true, "stale_after_hours": 100},
+    {"id": "ig_oas", "label": "US investment-grade OAS","group": "credit", "source": "fred", "symbol": "BAMLC0A0CM",   "scale": 100, "units": "bp", "decimals": 0, "change_units": "bp", "stale_after_hours": 100},
+    {"id": "nfci",   "label": "Chicago Fed NFCI",       "group": "credit", "source": "fred", "symbol": "NFCI", "units": "index", "decimals": 2, "change_units": "pts", "stale_after_hours": 240, "note": "Weekly. Positive = tighter than average."},
+    {"id": "vix",    "label": "VIX",                    "group": "credit", "source": "yahoo", "symbol": "^VIX", "units": "index", "decimals": 2, "change_units": "pts", "overview": true, "stale_after_hours": 80},
+
+    {"id": "wti",    "label": "WTI crude",   "group": "commodities", "source": "yahoo", "symbol": "CL=F", "units": "price", "decimals": 2, "change_units": "%", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "brent",  "label": "Brent crude", "group": "commodities", "source": "yahoo", "symbol": "BZ=F", "units": "price", "decimals": 2, "change_units": "%", "stale_after_hours": 80},
+    {"id": "gold",   "label": "Gold",        "group": "commodities", "source": "yahoo", "symbol": "GC=F", "units": "price", "decimals": 0, "change_units": "%", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "copper", "label": "Copper",      "group": "commodities", "source": "yahoo", "symbol": "HG=F", "units": "price", "decimals": 3, "change_units": "%", "stale_after_hours": 80},
+    {"id": "natgas", "label": "US natural gas", "group": "commodities", "source": "yahoo", "symbol": "NG=F", "units": "price", "decimals": 3, "change_units": "%", "stale_after_hours": 80},
+
+    {"id": "spx",    "label": "S&P 500",      "group": "equities", "source": "yahoo", "symbol": "^GSPC", "units": "index", "decimals": 0, "change_units": "%", "overview": true, "reaction": true, "stale_after_hours": 80},
+    {"id": "dji",    "label": "Dow Jones",    "group": "equities", "source": "yahoo", "symbol": "^DJI",  "units": "index", "decimals": 0, "change_units": "%", "stale_after_hours": 80},
+    {"id": "ixic",   "label": "Nasdaq Composite", "group": "equities", "source": "yahoo", "symbol": "^IXIC", "units": "index", "decimals": 0, "change_units": "%", "stale_after_hours": 80},
+    {"id": "rut",    "label": "Russell 2000", "group": "equities", "source": "yahoo", "symbol": "^RUT",  "units": "index", "decimals": 0, "change_units": "%", "stale_after_hours": 80},
+    {"id": "spx_ew", "label": "S&P 500 equal-weight (RSP)", "group": "equities", "source": "yahoo", "symbol": "RSP", "units": "price", "decimals": 2, "change_units": "%", "stale_after_hours": 80, "note": "Equal-weight ETF; compared with the S&P 500 as a breadth gauge."}
+  ]
+}

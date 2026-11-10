@@ -1,0 +1,8 @@
+{
+  "_comment": "Template for config/sources.json — the news sources your collectors read. Copy to config/sources.json and list your own. kind: official | media | research. tier: 1 primary/official, 2 quality media, 3 niche. region: default region for items when the text gives no signal (US, EA, UK, JP, CN, CA, AU, NZ, CH, SE, NO, Global). topics: default topic hints. Only titles, short summaries and links should be stored; respect each source's terms of use.",
+  "sources": [
+    {"id": "example_central_bank", "name": "Example central bank — press releases", "url": "https://example.org/central-bank/press.xml", "kind": "official", "tier": 1, "region": "US", "topics": ["monetary_policy"]},
+    {"id": "example_statistics",   "name": "Example statistics agency — releases",   "url": "https://example.org/statistics/releases.xml", "kind": "official", "tier": 1, "region": "US", "topics": ["inflation", "labor", "growth"]},
+    {"id": "example_newswire",     "name": "Example newswire — economy",             "url": "https://example.org/news/economy.xml", "kind": "media", "tier": 2, "region": "US"}
+  ]
+}
